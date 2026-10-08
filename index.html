@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Scotland Trip">
+<meta name="theme-color" content="#1E4F5C">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Elle and Joe Wedding Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: phone-first single column; sticky header with date strip; one card per day, tabs for Hotels / Flights & docs / Bookings / Edinburgh picks */
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --sunk:#E7EBE6; --line:#D5DCD5;
+  --fg:#18221E; --muted:#5A6760;
+  --loch:#1E4F5C; --heather:#7A3F86; --heather-soft:#F1E7F3;
+  --warn:#8A5A00; --warn-soft:#FBF0D9;
+  --font-display:"Young Serif", Georgia, "Times New Roman", serif;
+  --font-body:"Figtree", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2E3934;
+  --fg:#E6ECE8; --muted:#9AA8A1;
+  --loch:#86BCC9; --heather:#D2A6DC; --heather-soft:#33263A;
+  --warn:#F0C46A; --warn-soft:#3A3020; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#19211E; --sunk:#222B28; --line:#2E3934;
+  --fg:#E6ECE8; --muted:#9AA8A1;
+  --loch:#86BCC9; --heather:#D2A6DC; --heather-soft:#33263A;
+  --warn:#F0C46A; --warn-soft:#3A3020; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--font-body);margin:0}
+a{color:var(--loch);text-underline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:0 48px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);
+  border-bottom:1px solid var(--line)}
+.tartan{height:6px;background:
+  repeating-linear-gradient(90deg,var(--loch) 0 10px,transparent 10px 14px,var(--heather) 14px 18px,transparent 18px 22px),
+  var(--sunk)}
+.head-in{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:12px 0}
+h1{font:400 1.45rem/1.15 var(--font-display);margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.9rem;margin-top:2px}
+.tabs{display:flex;gap:4px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:0;background:none;color:var(--muted);font:600 .95rem var(--font-body);
+  padding:8px 10px 10px;border-bottom:3px solid transparent;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--heather)}
+.tab:focus-visible,.chip:focus-visible,button:focus-visible{outline:2px solid var(--loch);outline-offset:2px}
+
+.dates{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;min-width:48px;padding:6px 8px;
+  border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg);
+  font:600 .8rem/1.1 var(--font-body);text-decoration:none;font-variant-numeric:tabular-nums}
+.chip small{font-weight:500;color:var(--muted);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase}
+.chip b{font-size:1.05rem}
+.chip.today{background:var(--heather);border-color:var(--heather);color:var(--bg)}
+.chip.today small{color:var(--bg)}
+.chip.wed{border-color:var(--heather)}
+
+.now{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--heather-soft);font-size:.95rem}
+.now strong{font-family:var(--font-display);font-weight:400;font-size:1.1rem;display:block}
+
+section.panel{padding-top:8px}
+.leg{font:600 .75rem var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  margin:28px 0 8px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:14px;overflow:hidden;
+  scroll-margin-top:170px}
+.day.is-today{border-color:var(--heather);box-shadow:0 0 0 2px var(--heather)}
+.day-h{padding:14px 16px 10px;display:flex;gap:14px;align-items:flex-start}
+.dnum{flex:0 0 auto;text-align:center;font-variant-numeric:tabular-nums;min-width:44px}
+.dnum small{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dnum b{font:400 1.7rem/1 var(--font-display)}
+.day-h h2{font:400 1.2rem/1.25 var(--font-display);margin:2px 0 2px;text-wrap:balance}
+.day-h .where{color:var(--muted);font-size:.88rem}
+.badge{display:inline-block;font:600 .68rem var(--font-body);letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:999px;background:var(--heather-soft);color:var(--heather);margin-bottom:4px}
+.items{list-style:none;margin:0;padding:0 16px 6px}
+.items li{display:grid;grid-template-columns:64px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.t{font:600 .8rem/1.6 var(--font-body);color:var(--loch);font-variant-numeric:tabular-nums}
+.body{min-width:0}
+.body .what{font-weight:600}
+.body .note{color:var(--muted);font-size:.9rem;margin-top:2px}
+.body .links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px;font-size:.88rem}
+.code{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;font-size:.85rem}
+.code span.k{color:var(--muted)}
+.code button{font:500 .85rem var(--font-mono);background:var(--sunk);color:var(--fg);border:1px solid var(--line);
+  border-radius:6px;padding:3px 8px;cursor:pointer;word-break:break-all;text-align:left}
+.code button.done{border-color:var(--loch);color:var(--loch)}
+.sleep{display:flex;gap:10px;align-items:baseline;padding:10px 16px 12px;background:var(--sunk);font-size:.9rem}
+.sleep .lbl{font:600 .7rem var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);flex:0 0 auto}
+.sleep .nm{font-weight:600}
+.others{padding:10px 16px;font-size:.88rem;color:var(--muted);border-top:1px dashed var(--line)}
+.others b{color:var(--fg);font-weight:600}
+.check{margin:0 16px 12px;padding:8px 10px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:.85rem}
+.check::before{content:"Check: ";font-weight:700}
+
+details.earlier{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 16px}
+details.earlier summary{cursor:pointer;padding:14px 0;font-weight:600}
+details.earlier .row{border-top:1px solid var(--line);padding:10px 0;font-size:.92rem}
+details.earlier .row b{font-variant-numeric:tabular-nums}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:12px}
+.card h3{font:400 1.1rem/1.25 var(--font-display);margin:0 0 2px}
+.card .meta{color:var(--muted);font-size:.88rem}
+.card .links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:.9rem}
+.nights{font:600 .75rem var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:var(--loch);font-variant-numeric:tabular-nums}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.foot{color:var(--muted);font-size:.82rem;margin-top:28px}
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
+</style>
+<style>
+.who{display:flex;flex-direction:column;gap:4px;padding:10px 16px 12px;background:var(--sunk);font-size:.88rem}
+.who div{display:grid;grid-template-columns:92px 1fr;gap:8px}
+.who .p{font-weight:600}
+.who .s{color:var(--muted);min-width:0}
+.legend{margin-top:16px;color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="tartan" aria-hidden="true"></div>
+  <div class="head-in">
+    <h1>Elle and Joe Wedding Trip</h1>
+    <div class="sub">Liverpool, the Lake District, Edinburgh, Dalhousie Castle, the Highlands · Oct 10–23, 2026</div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-days" aria-selected="true" data-p="days">Day by day</button>
+      <button class="tab" role="tab" id="tab-stays" aria-selected="false" data-p="stays">Hotels</button>
+      <button class="tab" role="tab" id="tab-book" aria-selected="false" data-p="book">Bookings</button>
+      <button class="tab" role="tab" id="tab-edi" aria-selected="false" data-p="edi">Edinburgh picks</button>
+    </div>
+    <nav class="dates" id="dates" aria-label="Jump to a day"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel" id="p-days">
+    <div class="now" id="now"></div>
+    <div id="days"></div>
+  </section>
+  <section class="panel" id="p-stays" hidden><div id="stays"></div></section>
+  <section class="panel" id="p-book" hidden><div id="book"></div></section>
+  <section class="panel" id="p-edi" hidden><div id="edi"></div></section>
+  <p class="foot">Group schedule for Ian &amp; Caro, Ken &amp; Di, and Toby &amp; Liv. Times are local UK time. Personal flight bookings, hotel confirmation numbers and tour PINs are not on this page; ask whoever made the booking.</p>
+</main>
+
+<script>
+const map = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+
+const HOTELS = [
+ {name:"Hard Days Night Hotel", city:"Liverpool", who:"Ian & Caro", nights:"Oct 12–14 · 2 nights",
+  links:[["Hotel site","https://www.millenniumhotels.com/en/liverpool/hard-days-night-hotel-liverpool/"],["Map",map("Hard Days Night Hotel Liverpool")]]},
+ {name:"The Swan at Grasmere", city:"Lake District", who:"Ian & Caro", nights:"Oct 14–15 · 1 night",
+  links:[["Map",map("The Swan Grasmere")]]},
+ {name:"Kings Cross area", city:"London", who:"Toby & Liv", nights:"Oct 14–15 · 1 night", links:[]},
+ {name:"ibis Styles Edinburgh St Andrew Square", city:"Edinburgh", who:"Ian & Caro (Oct 15–18), Ken & Di (Oct 15–17)", nights:"From Oct 15",
+  links:[["Hotel site","https://all.accor.com/hotel/9058/index.en.shtml"],["Map",map("ibis Styles Edinburgh St Andrew Square")]]},
+ {name:"Hotel Indigo Edinburgh", city:"Edinburgh · 51–59 York Place, EH1 3JD", who:"Toby & Liv", nights:"Oct 15–18 · 3 nights",
+  links:[["Map",map("Hotel Indigo Edinburgh York Place")]]},
+ {name:"Dalhousie Castle", city:"Bonnyrigg, about 30 minutes south of Edinburgh", who:"Ken & Di (from Oct 17), Ian & Caro and Toby & Liv (from Oct 18)", nights:"Through Oct 20",
+  links:[["Hotel site","https://www.dalhousiecastle.co.uk/"],["Map",map("Dalhousie Castle Bonnyrigg")]]},
+ {name:"Cuilcheanna House", city:"Onich, near Fort William", who:"Ian & Caro, Ken & Di", nights:"Oct 20–21 · 1 night",
+  meta:"Self check-in from lockboxes, 4:00–9:00 pm. Breakfast included.",
+  links:[["Hotel site","https://cuilcheannahouse.com/"],["Map",map("Cuilcheanna House Onich PH33 6SD")]]},
+ {name:"Columba Hotel", city:"Inverness", who:"Ian & Caro, Ken & Di", nights:"Oct 21–22 · 1 night",
+  links:[["Map",map("Columba Hotel Inverness")]]},
+ {name:"Hampton by Hilton Edinburgh Airport", city:"Edinburgh Airport", who:"Ian & Caro, Ken & Di", nights:"Oct 22–23 · 1 night",
+  links:[["Map",map("Hampton by Hilton Edinburgh Airport")]]}
+];
+
+/* who: [label, text] rows shown at the bottom of each day */
+const DAYS = [
+ {date:"2026-10-10", leg:"Getting there", title:"Ian & Caro leave Honolulu", where:"Honolulu to Seattle",
+  items:[{t:"7:00 am", what:"Ian & Caro: Alaska AS 90, Honolulu to Seattle", note:"Arrives 3:55 pm."}]},
+ {date:"2026-10-11", leg:"Getting there", title:"Seattle to Dublin", where:"Overnight flight",
+  items:[{t:"6:55 pm", what:"Ian & Caro: EL 52, Seattle to Dublin", note:"Arrives about noon on Oct 12."}]},
+ {date:"2026-10-12", leg:"Liverpool and the Lake District", title:"Arrive in Liverpool", where:"Dublin to Liverpool",
+  items:[{t:"7:30 pm", what:"Ian & Caro: EL 3196, Dublin to Liverpool", note:"Arrives 8:35 pm."}],
+  who:[["Ian & Caro","Hard Days Night Hotel, Liverpool"]]},
+ {date:"2026-10-13", leg:"Liverpool and the Lake District", title:"Explore Liverpool", where:"Liverpool",
+  items:[
+   {t:"Day", what:"Beatles taxi tour (booked)", note:"Robin may join as a guide."},
+   {t:"Later", what:"The Cavern, the Mersey, pub culture"}
+  ],
+  who:[["Ian & Caro","Hard Days Night Hotel, Liverpool"]]},
+ {date:"2026-10-14", leg:"Liverpool and the Lake District", title:"Into the Lake District", where:"Liverpool to Grasmere · about 2 hours",
+  items:[
+   {t:"Morning", what:"Last look at Liverpool, pick up the rental car", note:"One car for 9 days."},
+   {t:"Afternoon", what:"Scenic drive by Kendal and Windermere to Grasmere",
+    links:[["Route","https://www.google.com/maps/dir/?api=1&origin=Liverpool&destination=Grasmere&waypoints="+encodeURIComponent("Kendal|Windermere")]]},
+   {t:"3:05 pm", what:"Toby & Liv land at Heathrow", note:"Alaska 101."},
+   {t:"Evening", what:"Ken & Di fly out of Milwaukee", note:"Overnight via Boston, landing in Edinburgh Thursday morning."}
+  ],
+  who:[["Ian & Caro","The Swan at Grasmere"],["Toby & Liv","Kings Cross, London"],["Ken & Di","Overnight flight"]]},
+ {date:"2026-10-15", leg:"Edinburgh", title:"Everyone arrives in Edinburgh", where:"Edinburgh",
+  items:[
+   {t:"7:05 am", what:"Ken & Di land at Edinburgh Airport"},
+   {t:"7:30 am", what:"Toby & Liv take the train from London", note:"Arrives Edinburgh 11:38 am."},
+   {t:"Morning", what:"Ian & Caro tour the Lake District, then drive to Edinburgh", note:"Keswick, Penrith, Appleby. About 3 hours to Edinburgh."},
+   {t:"By 4 pm", what:"Kilt shop", note:"Toby and Ken have fittings; Ian collects outfits for himself, Mark and Ken. Last fitting slot is 4:00 pm.",
+    addr:"Unit 13, Flex Space Edinburgh, 2 Harvest Road, Newbridge, Edinburgh EH28 8AN",
+    links:[["Map",map("Flex Space Edinburgh, 2 Harvest Road, Newbridge, EH28 8AN")]]},
+   {t:"Evening", what:"Pick a pub", go:"edi"}
+  ],
+  who:[["Ian & Caro","ibis Styles, St Andrew Square"],["Ken & Di","ibis Styles, St Andrew Square"],["Toby & Liv","Hotel Indigo, York Place"]],
+  check:"Confirm with Ian whether Ken has a fitting or Ian is collecting Ken's outfit. The two tabs of the original sheet disagree."},
+ {date:"2026-10-16", leg:"Edinburgh", title:"Edinburgh Castle and The Witchery", where:"Edinburgh",
+  items:[
+   {t:"11:30 am", what:"Edinburgh Castle tour with kilted guide", note:"Booked through GetYourGuide.", links:[["Map",map("Edinburgh Castle")]]},
+   {t:"Lunch", what:"Pick a pub", go:"edi"},
+   {t:"Afternoon", what:"Free time", go:"edi"},
+   {t:"Evening", what:"Dinner at The Witchery", note:"Next to the castle at the top of the Royal Mile.", links:[["Map",map("The Witchery by the Castle Edinburgh")]]}
+  ],
+  who:[["Ian & Caro","ibis Styles, St Andrew Square"],["Ken & Di","ibis Styles, St Andrew Square"],["Toby & Liv","Hotel Indigo, York Place"]],
+  check:"Dinner time at The Witchery still to confirm."},
+ {date:"2026-10-17", leg:"Edinburgh", title:"Free day, ghost tour at night", where:"Edinburgh",
+  items:[
+   {t:"Day", what:"Free time", go:"edi"},
+   {t:"Evening", what:"Pub dinner", go:"edi"},
+   {t:"9:15 pm", what:"Extreme Paranormal Underground Ghost Tour", note:"75 minutes, ends about 10:30 pm. About $26 per person.",
+    links:[["Tour page","https://www.getyourguide.com/edinburgh-l44/edinburgh-extreme-paranormal-underground-ghost-tour-t70311/"]]}
+  ],
+  who:[["Ian & Caro","ibis Styles, St Andrew Square"],["Ken & Di","Dalhousie Castle (need a ride back after the tour)"],["Toby & Liv","Hotel Indigo, York Place"]]},
+ {date:"2026-10-18", leg:"The wedding", title:"Brunch, then Dalhousie Castle", where:"Edinburgh to Dalhousie Castle",
+  items:[
+   {t:"12:45 pm", what:"Sunday brunch at The Dome (proposed)", note:"£14 plus drinks.",
+    links:[["Site","https://www.thedomeedinburgh.com/"],["Map",map("The Dome Edinburgh George Street")]]},
+   {t:"Afternoon", what:"Drive to Dalhousie Castle and relax"},
+   {t:"3–6 pm", what:"Meet and greet at Dalhousie Castle", note:"Meet up with Joe and Elle."},
+   {t:"Evening", what:"Rehearsal dinner"}
+  ],
+  who:[["Everyone","Dalhousie Castle"]]},
+ {date:"2026-10-19", leg:"The wedding", wedding:true, title:"Wedding of Elle and Joe", where:"Dalhousie Castle",
+  items:[{t:"All day", what:"The wedding at Dalhousie Castle"}],
+  who:[["Everyone","Dalhousie Castle"]],
+  check:"Ceremony time: see the invitation."},
+ {date:"2026-10-20", leg:"Highlands drive", title:"Drive to Fort William through Glencoe", where:"Dalhousie Castle to Onich · about 3 hours",
+  items:[
+   {t:"Morning", what:"Check out and drive west", note:"One of the best drives in the UK. Do not miss Glencoe.",
+    links:[["Route","https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent("Dalhousie Castle")+"&destination="+encodeURIComponent("Cuilcheanna House Onich")+"&waypoints="+encodeURIComponent("Glencoe")]]},
+   {t:"4–9 pm", what:"Self check-in at Cuilcheanna House", note:"Keys are in lockboxes; codes come by email. Arrive by 9:00 pm."}
+  ],
+  who:[["Ian & Caro","Cuilcheanna House, Onich"],["Ken & Di","Cuilcheanna House, Onich"],["Toby & Liv","Plans not in the sheet"]]},
+ {date:"2026-10-21", leg:"Highlands drive", title:"Loch Ness to Inverness", where:"Onich to Inverness · about 2 hours",
+  items:[
+   {t:"Morning", what:"Drive along Loch Ness", note:"Watch for Nessie.",
+    links:[["Route","https://www.google.com/maps/dir/?api=1&origin=Onich&destination=Inverness&waypoints="+encodeURIComponent("Loch Ness")]]},
+   {t:"Afternoon", what:"Find a distillery", links:[["Distillery finder","https://www.visitscotland.com/things-to-do/food-drink/whisky/distilleries"]]},
+   {t:"5:00 pm", what:"Toby & Liv fly home from Heathrow"}
+  ],
+  who:[["Ian & Caro","Columba Hotel, Inverness"],["Ken & Di","Columba Hotel, Inverness"]]},
+ {date:"2026-10-22", leg:"Highlands drive", title:"Back to Edinburgh by Perth and Stirling", where:"Inverness to Edinburgh Airport · about 3.5 hours",
+  items:[
+   {t:"Day", what:"Drive south through Perth and Stirling", note:"More distilleries if you want them.",
+    links:[["Route","https://www.google.com/maps/dir/?api=1&origin=Inverness&destination="+encodeURIComponent("Edinburgh Airport")+"&waypoints="+encodeURIComponent("Perth, Scotland|Stirling")]]},
+   {t:"Evening", what:"Return the rental car"}
+  ],
+  who:[["Ian & Caro","Hampton by Hilton, Edinburgh Airport"],["Ken & Di","Hampton by Hilton, Edinburgh Airport"]],
+  check:"Car return is listed on both Oct 22 and Oct 23 in the original sheet."},
+ {date:"2026-10-23", leg:"Home", title:"Fly home", where:"Edinburgh Airport",
+  items:[
+   {t:"11:20 am", what:"Ken & Di fly to Boston, then Milwaukee"},
+   {t:"11:55 am", what:"Ian & Caro: EL 3253, Edinburgh to Dublin", note:"Then Dublin 3:25 pm (EL 53) to Seattle, then Seattle 8:45 pm (AS 268) to Honolulu, arriving 11:54 pm."}
+  ]}
+];
+
+const BOOKINGS = [
+ {h:"Beatles taxi tour", when:"Tue Oct 13, Liverpool", who:"Ian & Caro", via:"GetYourGuide"},
+ {h:"Edinburgh Castle tour with kilted guide", when:"Fri Oct 16, 11:30 am", who:"Group", via:"GetYourGuide"},
+ {h:"The Witchery dinner", when:"Fri Oct 16, evening", who:"Group"},
+ {h:"Underground ghost tour", when:"Sat Oct 17, 9:15 pm", who:"Group", via:"GetYourGuide"},
+ {h:"Meet and greet", when:"Sun Oct 18, 3–6 pm", who:"Everyone", via:"Dalhousie Castle"},
+ {h:"Wedding of Elle and Joe", when:"Mon Oct 19", who:"Everyone", via:"Dalhousie Castle"}
+];
+
+const PUBS = [
+ ["The White Hart Inn","https://www.belhaven.co.uk/pubs/edinburgh/white-hart"],
+ ["The Last Drop","https://www.nicholsonspubs.co.uk/restaurants/scotlandandnorthernireland/thelastdropgrassmarketedinburgh"],
+ ["The Jolly Judge","https://www.jollyjudge.co.uk/"],
+ ["The Balmoral Bar","https://www.thebalmoralbar.com/"],
+ ["Dirty Dicks","https://www.dirtydicksedinburgh.com/"],
+ ["The Queens Arms","https://queensarmsedinburgh.com/"],
+ ["Captains Bar","https://www.captainsedinburgh.com/"],
+ ["The Number 1 High Street Tavern","https://no1highstreetedinburgh.co.uk/"],
+ ["Panda and Sons","https://www.pandaandsons.com/"]
+];
+const SIGHTS = [
+ ["Palace of Holyroodhouse","https://www.rct.uk/visit/palace-of-holyroodhouse"],
+ ["Royal Yacht Britannia","https://www.royalyachtbritannia.co.uk/"],
+ ["Dean Village and Circus Lane walking tour","https://www.visitscotland.com/info/tours/dean-village-circus-lane-walking-tour-f5d49154"],
+ ["Hop-on hop-off bus tour",null],
+ ["Chocolatarium","https://www.chocolatarium.co.uk/"],
+ ["The Real Mary King's Close","https://www.realmarykingsclose.com/"],
+ ["Greyfriars Bobby statue","https://en.wikipedia.org/wiki/Greyfriars_Bobby_Fountain"],
+ ["Camera Obscura and World of Illusions","https://www.camera-obscura.co.uk/"]
+];
+
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const linkHTML = ls => ls && ls.length ? `<div class="links">${ls.map(([l,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(l)}</a>`).join("")}</div>` : "";
+const dObj = s => new Date(s+"T12:00:00Z");
+const wd = s => dObj(s).toLocaleDateString("en-US",{weekday:"short",timeZone:"UTC"});
+const md = s => dObj(s).getUTCDate();
+const full = s => dObj(s).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",timeZone:"UTC"});
+function ukToday(){try{return new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/London",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date())}catch(e){return new Date().toISOString().slice(0,10)}}
+const TODAY = ukToday();
+
+let html="", lastLeg="";
+DAYS.forEach(d=>{
+  if(d.leg!==lastLeg){html+=`<div class="leg">${esc(d.leg)}</div>`; lastLeg=d.leg;}
+  const goLink = i => i.go?`<a href="#" data-go="${i.go}">See list</a>`:"";
+  html += `<article class="day${d.date===TODAY?" is-today":""}" id="d${d.date}">
+    <div class="day-h"><div class="dnum"><small>${wd(d.date)}</small><b>${md(d.date)}</b></div>
+      <div>${d.wedding?'<span class="badge">Wedding day</span>':""}${d.date===TODAY?'<span class="badge">Today</span>':""}
+      <h2>${esc(d.title)}</h2><div class="where">${esc(d.where)}</div></div></div>
+    <ul class="items">${d.items.map(i=>`<li><div class="t">${esc(i.t)}</div><div class="body">
+      <div class="what">${esc(i.what)}</div>
+      ${(i.note||i.go)?`<div class="note">${i.note?esc(i.note)+" ":""}${goLink(i)}</div>`:""}
+      ${i.addr?`<div class="note">${esc(i.addr)}</div>`:""}
+      ${linkHTML(i.links)}</div></li>`).join("")}</ul>
+    ${d.check?`<div class="check">${esc(d.check)}</div>`:""}
+    ${d.who?`<div class="who"><span class="sleep lbl" style="padding:0;background:none">Tonight</span>${d.who.map(([p,s])=>`<div><span class="p">${esc(p)}</span><span class="s">${esc(s)}</span></div>`).join("")}</div>`:""}
+  </article>`;
+});
+document.getElementById("days").innerHTML = html;
+
+document.getElementById("dates").innerHTML = DAYS.map(d=>
+  `<a class="chip${d.date===TODAY?" today":""}${d.wedding?" wed":""}" href="#d${d.date}" data-day="${d.date}"><small>${wd(d.date)}</small><b>${md(d.date)}</b></a>`).join("");
+
+(function(){
+  const el=document.getElementById("now");
+  const first=DAYS[0].date, last=DAYS[DAYS.length-1].date;
+  const wed="2026-10-19";
+  if(TODAY<first){
+    const n=Math.round((dObj(wed)-dObj(TODAY))/864e5);
+    el.innerHTML=`<strong>${n} days to the wedding</strong>Monday, October 19, at Dalhousie Castle. Everyone is together in Edinburgh from Thursday, October 15.`;
+  }else if(TODAY>last){
+    el.innerHTML=`<strong>Trip complete</strong>Safe travels home.`;
+  }else{
+    const d=DAYS.find(x=>x.date===TODAY);
+    el.innerHTML=`<strong>Today: ${esc(d.title)}</strong>${esc(full(d.date))} · <a href="#d${d.date}">Jump to today</a>`;
+  }
+})();
+
+document.getElementById("stays").innerHTML = HOTELS.map(h=>`<div class="card">
+  <div class="nights">${esc(h.nights)}</div><h3>${esc(h.name)}</h3><div class="meta">${esc(h.city)}</div>
+  <div class="meta"><b style="color:var(--fg);font-weight:600">${esc(h.who)}</b></div>${h.meta?`<div class="meta">${esc(h.meta)}</div>`:""}${linkHTML(h.links)}</div>`).join("");
+
+document.getElementById("book").innerHTML = `<p class="legend">Booking numbers and PINs are with whoever made each booking.</p>` +
+  BOOKINGS.map(b=>`<div class="card"><div class="nights">${esc(b.when)}</div><h3>${esc(b.h)}</h3><div class="meta">${esc(b.who)}${b.via?" · "+esc(b.via):""}</div></div>`).join("");
+
+const listCard=(title,arr)=>`<div class="card"><h3>${title}</h3><ul class="list">${arr.map(([n,u])=>`<li>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`:esc(n)} · <a href="${map(n+" Edinburgh")}" target="_blank" rel="noopener" style="font-size:.85rem">map</a></li>`).join("")}</ul></div>`;
+document.getElementById("edi").innerHTML = listCard("Recommended pubs",PUBS)+listCard("Things to do in free time",SIGHTS);
+
+const PANELS=["days","stays","book","edi"];
+const tabs=[...document.querySelectorAll(".tab")];
+function show(p){
+  tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.p===p?"true":"false"));
+  PANELS.forEach(k=>document.getElementById("p-"+k).hidden=(k!==p));
+  document.getElementById("dates").hidden = p!=="days";
+  try{localStorage.setItem("tab",p)}catch(e){}
+}
+tabs.forEach(t=>t.addEventListener("click",()=>{show(t.dataset.p);window.scrollTo(0,0)}));
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){e.preventDefault();show(g.dataset.go);window.scrollTo(0,0);return;}
+  const c=e.target.closest(".chip"); if(c){e.preventDefault();show("days");document.getElementById("d"+c.dataset.day).scrollIntoView({block:"start"});}
+});
+let saved="days"; try{saved=localStorage.getItem("tab")||"days"}catch(e){}
+show(PANELS.includes(saved)?saved:"days");
+if(DAYS.some(d=>d.date===TODAY)){setTimeout(()=>{const el=document.getElementById("d"+TODAY);el&&el.scrollIntoView({block:"start"});
+  const c=document.querySelector(".chip.today");c&&c.scrollIntoView({inline:"center",block:"nearest"})},300)}
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{})}</script>
+</body>
+</html>
